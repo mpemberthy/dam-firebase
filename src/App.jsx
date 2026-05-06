@@ -8,10 +8,21 @@ import AssetGallery from "./components/Gallery/AssetGallery";
 function App() {
   const [usuario, setUsuario] = useState(null);
   const [mostrarUpload, setMostrarUpload] = useState(false);
+  const [rol, setRol] = useState("light");
 
   useEffect(() => {
     const escuchar = onAuthStateChanged(auth, (usuarioActual) => {
       setUsuario(usuarioActual);
+      
+      if (usuarioActual) {
+        if (usuarioActual.email.includes("admin")) {
+          setRol("admin");
+        } else if (usuarioActual.email.includes("editor")) {
+          setRol("regular");
+        } else {
+          setRol("light");
+        }
+      }
     });
     return () => escuchar();
   }, []);
@@ -36,22 +47,26 @@ function App() {
             >
               📁 DAM
             </span>
-            <button
-              onClick={() => setMostrarUpload(true)}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm shadow transition-all"
-              style={{ backgroundColor: "#b0e4cc", color: "#091413" }}
-            >
-              + Nuevo
-            </button>
+            {(rol === "admin" || rol === "regular") && (
+              <button
+                onClick={() => setMostrarUpload(true)}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm shadow transition-all"
+                style={{ backgroundColor: "#b0e4cc", color: "#091413" }}
+              >
+                + Nuevo
+              </button>
+            )}
           </div>
 
           <div className="flex items-center gap-4">
-            <span
-              className="text-sm hidden md:block"
-              style={{ color: "#b0e4cc" }}
-            >
-              {usuario.email}
-            </span>
+            <div className="text-right hidden md:block">
+              <p className="text-[10px] font-bold uppercase" style={{ color: "#b0e4cc" }}>
+                Acceso: {rol}
+              </p>
+              <p className="text-xs opacity-70" style={{ color: "#b0e4cc" }}>
+                {usuario.email}
+              </p>
+            </div>
             <button
               onClick={handleCerrarSesion}
               className="text-sm px-4 py-2 rounded-xl font-semibold transition-all"
@@ -64,7 +79,7 @@ function App() {
 
         {/* CONTENIDO PRINCIPAL */}
         <main className="max-w-5xl mx-auto px-6 py-8">
-          <AssetGallery />
+          <AssetGallery rol={rol} />
         </main>
 
         {/* MODAL DE SUBIDA */}

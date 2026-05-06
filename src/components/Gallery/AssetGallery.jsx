@@ -4,7 +4,7 @@ import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import AssetDetails from "../Details/AssetDetails";
 import Fuse from "fuse.js";
 
-function AssetGallery() {
+function AssetGallery({ rol }) { 
   const [activos, setActivos] = useState([]);
   const [activoSeleccionado, setActivoSeleccionado] = useState(null);
   const [busqueda, setBusqueda] = useState("");
@@ -46,8 +46,7 @@ function AssetGallery() {
 
   return (
     <div className="w-full">
-
-      {/* BARRA DE FILTROS */}
+      {/* BARRA DE FILTROS*/}
       <div className="flex flex-col md:flex-row gap-3 mb-6">
         <input
           type="text"
@@ -69,10 +68,7 @@ function AssetGallery() {
           <option value="nombre">Nombre A-Z</option>
         </select>
 
-        <div
-          className="flex rounded-xl overflow-hidden"
-          style={{ backgroundColor: "#285a48" }}
-        >
+        <div className="flex rounded-xl overflow-hidden" style={{ backgroundColor: "#285a48" }}>
           <button
             onClick={() => setVistaLista(false)}
             className="px-4 py-2 text-sm font-semibold transition-all"
@@ -96,20 +92,9 @@ function AssetGallery() {
         </div>
       </div>
 
-      {/* CONTADOR */}
       <p className="text-xs mb-4" style={{ color: "#408a71" }}>
         {resultados.length} archivo{resultados.length !== 1 ? "s" : ""}
       </p>
-
-      {/* VISTA VACÍA */}
-      {resultados.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-24 gap-3">
-          <span className="text-5xl">📂</span>
-          <p className="text-sm" style={{ color: "#408a71" }}>
-            {busqueda ? "No se encontraron archivos con esa búsqueda." : "No hay archivos subidos aún. ¡Haz clic en + Nuevo para empezar!"}
-          </p>
-        </div>
-      )}
 
       {/* VISTA GALERÍA */}
       {!vistaLista && resultados.length > 0 && (
@@ -118,29 +103,17 @@ function AssetGallery() {
             <div
               key={activo.id}
               onClick={() => setActivoSeleccionado(activo)}
-              className="rounded-xl overflow-hidden cursor-pointer transition-all hover:scale-105"
+              className="rounded-xl overflow-hidden cursor-pointer transition-all hover:scale-105 shadow-md"
               style={{ backgroundColor: "#285a48" }}
             >
-              <img
-                src={activo.url}
-                alt={activo.nombre}
-                className="w-full h-36 object-cover"
-              />
+              <img src={activo.url} alt={activo.nombre} className="w-full h-36 object-cover" />
               <div className="p-2">
-                <p className="text-xs font-medium truncate" style={{ color: "#b0e4cc" }}>
-                  {activo.nombre}
-                </p>
-                <p className="text-xs truncate" style={{ color: "#408a71" }}>
-                  {activo.usuario}
-                </p>
+                <p className="text-xs font-medium truncate" style={{ color: "#b0e4cc" }}>{activo.nombre}</p>
+                <p className="text-[10px] truncate opacity-70" style={{ color: "#b0e4cc" }}>{activo.usuario}</p>
                 {activo.etiquetas?.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-1">
-                    {activo.etiquetas.map((tag, i) => (
-                      <span
-                        key={i}
-                        className="text-xs px-2 py-0.5 rounded-full"
-                        style={{ backgroundColor: "#408a71", color: "#fff" }}
-                      >
+                    {activo.etiquetas.slice(0, 2).map((tag, i) => (
+                      <span key={i} className="text-[9px] px-2 py-0.5 rounded-full" style={{ backgroundColor: "#408a71", color: "#fff" }}>
                         {tag}
                       </span>
                     ))}
@@ -162,40 +135,21 @@ function AssetGallery() {
               className="flex items-center gap-4 p-3 rounded-xl cursor-pointer transition-all hover:opacity-80"
               style={{ backgroundColor: "#285a48" }}
             >
-              <img
-                src={activo.url}
-                alt={activo.nombre}
-                className="w-12 h-12 object-cover rounded-lg"
-              />
+              <img src={activo.url} alt={activo.nombre} className="w-12 h-12 object-cover rounded-lg" />
               <div className="flex-1">
-                <p className="text-sm font-medium" style={{ color: "#b0e4cc" }}>
-                  {activo.nombre}
-                </p>
-                <p className="text-xs" style={{ color: "#408a71" }}>
-                  {activo.usuario}
-                </p>
+                <p className="text-sm font-medium" style={{ color: "#b0e4cc" }}>{activo.nombre}</p>
+                <p className="text-xs" style={{ color: "#408a71" }}>{activo.usuario}</p>
               </div>
-              {activo.etiquetas?.length > 0 && (
-                <div className="flex gap-1">
-                  {activo.etiquetas.map((tag, i) => (
-                    <span
-                      key={i}
-                      className="text-xs px-2 py-0.5 rounded-full"
-                      style={{ backgroundColor: "#408a71", color: "#fff" }}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
             </div>
           ))}
         </div>
       )}
 
+      {/* MODAL DE DETALLES */}
       {activoSeleccionado && (
         <AssetDetails
           activo={activoSeleccionado}
+          rol={rol} 
           onCerrar={() => setActivoSeleccionado(null)}
         />
       )}
